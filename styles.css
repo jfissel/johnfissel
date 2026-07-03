@@ -158,19 +158,27 @@ a.u-sweep:hover,
 a:focus-visible .u-sweep,
 a.u-sweep:focus-visible { background-size: 100% 1px; }
 
-/* ---------- Header / nav ---------- */
+/* ---------- Header / nav (transparent, overlays the hero) ---------- */
 
 .site-head {
-  max-width: var(--maxw);
-  margin-inline: auto;
-  padding: 0 var(--pad);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  color: var(--g-paper);
 }
+
+.site-head :focus-visible { outline-color: var(--g-paper); }
 
 .nav {
   display: flex;
   align-items: center;
   gap: 0.25rem;
   min-height: 4.5rem;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding: 0.25rem var(--pad) 0;
 }
 
 .brand {
@@ -215,36 +223,39 @@ a.u-sweep:focus-visible { background-size: 100% 1px; }
   height: 2.75rem;
   margin-left: 0.5rem;
   padding: 0;
-  border: 1px solid var(--hairline);
+  border: 1px solid rgb(246 246 246 / 0.35);
   border-radius: 50%;
   background: transparent;
-  color: var(--ink);
+  color: currentColor;
   cursor: pointer;
   transition: border-color 0.25s, transform 0.25s var(--ease-out);
 }
 
-.theme-toggle:hover { border-color: var(--ink); }
+.theme-toggle:hover { border-color: var(--g-paper); }
 .theme-toggle:active { transform: scale(0.92); }
 
-.theme-toggle .icon-sun { display: none; }
-.theme-toggle .icon-moon { display: block; }
+/* both icons stacked in the same cell; the active one rotates/fades in */
+.theme-toggle svg { grid-area: 1 / 1; }
+
+.theme-toggle .icon-sun { opacity: 0; transform: rotate(-90deg) scale(0.5); }
+.theme-toggle .icon-moon { opacity: 1; transform: none; }
 
 @media (prefers-color-scheme: dark) {
-  html:not([data-theme]) .theme-toggle .icon-sun { display: block; }
-  html:not([data-theme]) .theme-toggle .icon-moon { display: none; }
+  html:not([data-theme]) .theme-toggle .icon-sun { opacity: 1; transform: none; }
+  html:not([data-theme]) .theme-toggle .icon-moon { opacity: 0; transform: rotate(90deg) scale(0.5); }
 }
 
-:root[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
-:root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
-:root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
-:root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
+:root[data-theme="dark"] .theme-toggle .icon-sun { opacity: 1; transform: none; }
+:root[data-theme="dark"] .theme-toggle .icon-moon { opacity: 0; transform: rotate(90deg) scale(0.5); }
+:root[data-theme="light"] .theme-toggle .icon-sun { opacity: 0; transform: rotate(-90deg) scale(0.5); }
+:root[data-theme="light"] .theme-toggle .icon-moon { opacity: 1; transform: none; }
 
 /* ---------- Hero ---------- */
 
 .hero {
   position: relative;
   overflow: hidden;
-  min-height: min(88svh, 60rem);
+  min-height: min(92svh, 62rem);
   display: flex;
   align-items: flex-end;
 }
@@ -271,45 +282,35 @@ a.u-sweep:focus-visible { background-size: 100% 1px; }
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgb(10 10 10 / 0.34) 0%, rgb(10 10 10 / 0.12) 45%, rgb(10 10 10 / 0.62) 100%);
+  background: linear-gradient(180deg, rgb(10 10 10 / 0.45) 0%, rgb(10 10 10 / 0.12) 45%, rgb(10 10 10 / 0.62) 100%);
 }
 
-.hero-text {
+/* one enormous line, drifting horizontally like a slow ticker */
+.hero-line {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: var(--maxw);
-  margin-inline: auto;
-  padding: clamp(6rem, 16vh, 10rem) var(--pad) clamp(1.5rem, 4vh, 3rem);
+  margin: 0;
+  padding-bottom: clamp(1.25rem, 4vh, 3rem);
+  overflow: hidden;
+  white-space: nowrap;
   color: var(--g-paper);
-}
-
-.hero-kicker {
-  margin: 0 0 clamp(0.75rem, 2vh, 1.5rem);
-  font-size: clamp(0.75rem, 0.7rem + 0.3vw, 0.9375rem);
-  font-weight: 500;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgb(246 246 246 / 0.86);
-}
-
-.hero-name {
-  margin: 0 0 0 -0.05em;
   font-family: var(--font-display);
   font-weight: 550;
-  font-size: clamp(4.25rem, 20.5vw, 21rem);
-  line-height: 0.88;
-  letter-spacing: -0.03em;
+  font-size: clamp(3.75rem, 16vw, 17rem);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
   text-transform: uppercase;
 }
 
-.hero-name .line {
-  display: block;
-  overflow: hidden;
-  padding-right: 0.06em; /* room for the negative tracking of the last glyph */
+.hero-line-in { display: inline-block; }
+
+.marquee-track {
+  display: inline-block;
+  will-change: transform;
 }
 
-.hero-name .line-in { display: inline-block; }
+.marquee-item { display: inline-block; }
 
 /* ---------- Sections: label rail + content ---------- */
 
@@ -329,8 +330,9 @@ a.u-sweep:focus-visible { background-size: 100% 1px; }
   left: var(--pad);
   right: var(--pad);
   height: 7px;
-  background-image: repeating-linear-gradient(90deg, var(--hairline) 0 1px, transparent 1px 10%);
-  background-position: 100% 0;
+  background-image: linear-gradient(90deg, var(--hairline) 0 1px, transparent 1px);
+  background-size: 6rem 100%;
+  background-repeat: repeat-x;
 }
 
 .section:first-of-type { border-top: 0; }
@@ -346,13 +348,6 @@ a.u-sweep:focus-visible { background-size: 100% 1px; }
   display: flex;
   align-items: baseline;
   gap: 0.75rem;
-}
-
-.idx {
-  font-family: var(--font-body);
-  font-variant-numeric: tabular-nums;
-  font-size: 0.75rem;
-  color: var(--muted);
 }
 
 .label {
@@ -512,7 +507,8 @@ html:not(.js) .theme-toggle { display: none; }
   height: 6px;
   margin: -3px 0 0 -3px;
   border-radius: 50%;
-  background: var(--ink);
+  background: #fff;
+  mix-blend-mode: difference;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.25s, width 0.25s, height 0.25s, margin 0.25s;
@@ -546,24 +542,41 @@ html:not(.js) .theme-toggle { display: none; }
     to { transform: none; }
   }
 
-  .hero-name .line-in {
+  .hero-line-in {
     animation: rise 0.9s var(--ease-out) 0.15s both;
   }
-
-  .hero-name .line-in.l2 { animation-delay: 0.27s; }
 
   @keyframes rise {
     from { transform: translateY(110%); }
     to { transform: none; }
   }
 
-  .hero-kicker {
-    animation: fade-down 0.7s var(--ease-out) 0.75s both;
+  /* slow endless drift; track holds two copies, so -50% loops seamlessly */
+  .marquee-track {
+    animation: marquee 90s linear infinite;
   }
 
-  @keyframes fade-down {
-    from { opacity: 0; transform: translateY(-0.5rem); }
-    to { opacity: 1; transform: none; }
+  @keyframes marquee {
+    to { transform: translateX(-50%); }
+  }
+
+  /* theme toggle: icons rotate/fade through the switch */
+  .theme-toggle svg {
+    transition: transform 0.5s var(--ease-out), opacity 0.3s linear;
+  }
+
+  /* whole-page crossfade while the theme flips; .theme-anim is added by JS
+     for ~0.5s around the switch */
+  html.theme-anim,
+  html.theme-anim body,
+  html.theme-anim * {
+    transition:
+      background-color 0.5s ease,
+      color 0.5s ease,
+      border-color 0.5s ease,
+      fill 0.5s ease,
+      stroke 0.5s ease,
+      transform 0.5s var(--ease-out) !important;
   }
 
   .brand { animation: fade-in 0.6s ease 0.1s both; }
@@ -614,10 +627,5 @@ html:not(.js) .theme-toggle { display: none; }
   .rail {
     flex-direction: column;
     gap: 0.5rem;
-  }
-
-  .rail .idx::after {
-    content: " /";
-    color: var(--hairline);
   }
 }
