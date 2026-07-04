@@ -37,19 +37,16 @@ security headers (including the CSP) and cache lifetimes.
 > The same script is duplicated byte-for-byte in `404.html` — keep the two
 > copies identical so one hash covers both.
 
-## Enabling analytics (Cloudflare Web Analytics)
+## Analytics
 
-The site ships with a commented-out [Cloudflare Web Analytics](https://www.cloudflare.com/web-analytics/)
-beacon (cookie-free, no consent banner needed). To turn it on:
-
-1. In the Cloudflare dashboard, go to **Web Analytics** and add
-   `johnfissel.com` — copy the site token.
-2. In `index.html`, find the commented `beacon.min.js` script near
-   `</body>`, replace `REPLACE_WITH_CF_ANALYTICS_TOKEN` with your token,
-   and uncomment the tag.
-
-The CSP in `_headers` already allows the beacon's script and its
-`connect-src` endpoint, so no header changes are needed.
+Nothing is embedded in the pages. Since the site is hosted on Cloudflare,
+turn on [Web Analytics](https://www.cloudflare.com/web-analytics/) from the
+dashboard instead — Cloudflare injects its cookie-free beacon automatically
+at serve time (Pages project → **Metrics**, or the account-level **Web
+Analytics** section). The CSP in `_headers` already allow-lists
+`static.cloudflareinsights.com` / `cloudflareinsights.com` so the injected
+beacon isn't blocked; if you never enable analytics, those entries are
+harmless.
 
 ## Swapping the hero image
 

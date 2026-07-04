@@ -216,24 +216,31 @@ a.u-sweep:focus-visible { background-size: 100% 1px; }
   background-size: calc(100% - 1.75rem) 1px;
 }
 
+/* fixed control cluster, bottom-left — mirrors the scroll readout */
+.ui-cluster {
+  position: fixed;
+  left: clamp(0.875rem, 2vw, 2rem);
+  bottom: clamp(0.875rem, 2vw, 1.5rem);
+  z-index: 50;
+  display: flex;
+  gap: 0.5rem;
+}
+
 .icon-btn {
   display: grid;
   place-items: center;
   width: 2.75rem;
   height: 2.75rem;
   padding: 0;
-  border: 1px solid rgb(246 246 246 / 0.35);
+  border: 1px solid var(--hairline);
   border-radius: 50%;
-  background: transparent;
-  color: currentColor;
+  background: var(--bg);
+  color: var(--ink);
   cursor: pointer;
   transition: border-color 0.25s, transform 0.25s var(--ease-out);
 }
 
-.theme-toggle { margin-left: 0.5rem; }
-.marquee-toggle { margin-left: 0.25rem; }
-
-.icon-btn:hover { border-color: var(--g-paper); }
+.icon-btn:hover { border-color: var(--ink); }
 .icon-btn:active { transform: scale(0.92); }
 
 /* both icons stacked in the same cell; the active one rotates/fades in */
@@ -382,6 +389,10 @@ html.marquee-paused .marquee-toggle .icon-play { opacity: 1; transform: none; }
 .section:first-of-type { border-top: 0; }
 .section:first-of-type::before { content: none; }
 
+/* the hero's axis baseline already divides it from the first section */
+.hero + .section { border-top: 0; }
+.hero + .section::before { content: none; }
+
 #about, #contact, .error-hero {
   display: grid;
   grid-template-columns: 1fr;
@@ -517,7 +528,8 @@ a.contact-row:hover .ext {
   flex-wrap: wrap;
   max-width: var(--maxw);
   margin-inline: auto;
-  padding: 1.75rem var(--pad) 2rem;
+  /* extra bottom padding clears the fixed control cluster and readout */
+  padding: 1.75rem var(--pad) 5.75rem;
   border-top: 1px solid var(--hairline);
 }
 
@@ -564,8 +576,7 @@ a.contact-row:hover .ext {
 }
 
 html:not(.js) .readout { display: none; }
-html:not(.js) .theme-toggle { display: none; }
-html:not(.js) .marquee-toggle { display: none; }
+html:not(.js) .ui-cluster { display: none; }
 
 /* ---------- Error page (404.html) ---------- */
 
@@ -575,9 +586,6 @@ html:not(.js) .marquee-toggle { display: none; }
 }
 
 .page-error .site-head :focus-visible { outline-color: var(--ink); }
-
-.page-error .icon-btn { border-color: var(--hairline); }
-.page-error .icon-btn:hover { border-color: var(--ink); }
 
 .error-hero {
   min-height: 62svh;
@@ -669,25 +677,10 @@ html:not(.js) .marquee-toggle { display: none; }
     transition: transform 0.5s var(--ease-out), opacity 0.3s linear;
   }
 
-  /* whole-page crossfade while the theme flips; .theme-anim is added by JS
-     for ~0.5s around the switch */
-  html.theme-anim,
-  html.theme-anim body,
-  html.theme-anim * {
-    transition:
-      background-color 0.5s ease,
-      color 0.5s ease,
-      border-color 0.5s ease,
-      fill 0.5s ease,
-      stroke 0.5s ease,
-      transform 0.5s var(--ease-out) !important;
-  }
-
   .brand { animation: fade-in 0.6s ease 0.1s both; }
   .nav-links li:nth-child(1) { animation: fade-in 0.6s ease 0.3s both; }
   .nav-links li:nth-child(2) { animation: fade-in 0.6s ease 0.42s both; }
-  .theme-toggle { animation: fade-in 0.6s ease 0.54s both; }
-  .marquee-toggle { animation: fade-in 0.6s ease 0.66s both; }
+  .ui-cluster { animation: fade-in 0.6s ease 0.54s both; }
 
   @keyframes fade-in {
     from { opacity: 0; transform: translateY(-6px); }

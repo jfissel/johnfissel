@@ -35,15 +35,8 @@
     }
   }
 
-  var animTimer = null;
-
   toggle.addEventListener("click", function () {
     var next = effectiveTheme() === "dark" ? "light" : "dark";
-    if (motionOK) {
-      doc.classList.add("theme-anim");
-      clearTimeout(animTimer);
-      animTimer = setTimeout(function () { doc.classList.remove("theme-anim"); }, 550);
-    }
     doc.setAttribute("data-theme", next);
     try { localStorage.setItem("theme", next); } catch (e) {}
     syncThemeUI();
